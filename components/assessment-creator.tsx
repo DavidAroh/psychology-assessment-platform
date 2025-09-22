@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Copy, QrCode, ExternalLink } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { createAssessment } from "@/lib/database"
 
 interface AssessmentCreatorProps {
   assessmentType: string
@@ -17,60 +19,42 @@ interface AssessmentCreatorProps {
 }
 
 export function AssessmentCreator({ assessmentType, assessmentName }: AssessmentCreatorProps) {
+  const router = useRouter()
   const [clientId, setClientId] = useState("")
   const [notes, setNotes] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [assessmentLink, setAssessmentLink] = useState("")
   const [showLinkDialog, setShowLinkDialog] = useState(false)
 
-  const getGoogleFormUrl = (type: string) => {
-    const formUrls = {
-      "PHQ-9": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_PHQ9_FORM_ID/viewform",
-      "GAD-7": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_GAD7_FORM_ID/viewform",
-      "BDI-II": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_BDI2_FORM_ID/viewform",
-      "DASS-21": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_DASS21_FORM_ID/viewform",
-      "PCL-5": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_PCL5_FORM_ID/viewform",
-      MINI: "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_MINI_FORM_ID/viewform",
-    }
-    return (
-      formUrls[type as keyof typeof formUrls] || "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_FORM_ID/viewform"
-    )
-  }
-
   const handleCreateAssessment = async () => {
     setIsCreating(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      // Create assessment in database
+      const assessment = createAssessment({
+        type: assessmentType,
+        clientId: clientId || undefined,
+        notes: notes || undefined,
+      })
 
-    const baseFormUrl = getGoogleFormUrl(assessmentType)
+      // Create assessment link
+      const link = `${window.location.origin}/take/${assessment.id}`
+      setAssessmentLink(link)
+      setShowLinkDialog(true)
 
-    if (baseFormUrl.includes("REPLACE_WITH_YOUR")) {
       toast({
-        title: "Setup Required",
-        description: "Please replace the placeholder Google Form URLs with your actual form IDs in the code.",
+        title: "Assessment Created",
+        description: `${assessmentType} assessment has been created successfully.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create assessment. Please try again.",
         variant: "destructive",
       })
-      setIsCreating(false)
-      return
     }
 
-    const trackingParams = new URLSearchParams({
-      client_id: clientId || "anonymous",
-      assessment_type: assessmentType,
-      created_at: new Date().toISOString(),
-      notes: notes || "",
-    })
-
-    const link = `${baseFormUrl}?${trackingParams.toString()}`
-    setAssessmentLink(link)
-    setShowLinkDialog(true)
     setIsCreating(false)
-
-    toast({
-      title: "Assessment Created",
-      description: `${assessmentType} Google Form link has been generated successfully.`,
-    })
   }
 
   const copyToClipboard = (text: string) => {
@@ -93,7 +77,7 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
             Create {assessmentType} Assessment
             <Badge variant="secondary">{assessmentName}</Badge>
           </CardTitle>
-          <CardDescription>Generate a Google Form link for your client to complete this assessment</CardDescription>
+          <CardDescription>Create a secure assessment link for your client to complete</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -128,9 +112,9 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
       <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Google Form Assessment Link Created</DialogTitle>
+            <DialogTitle>Assessment Link Created</DialogTitle>
             <DialogDescription>
-              Share this Google Form link with your client to complete the {assessmentType} assessment.
+              Share this secure link with your client to complete the {assessmentType} assessment.
             </DialogDescription>
           </DialogHeader>
 
@@ -145,9 +129,9 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
                 Copy Link
               </Button>
 
-              <Button variant="outline" className="flex-1 bg-transparent" onClick={() => openInNewTab(assessmentLink)}>
+              <Button variant="outline" className="flex-1 bg-transparent" onClick={() => router.push(`/take/${assessmentLink.split('/').pop()}`)}>
                 <ExternalLink className="w-4 h-4 mr-2" />
-                Open Form
+                Preview Assessment
               </Button>
 
               <Button variant="outline">
@@ -157,11 +141,10 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
 
             <div className="text-xs text-muted-foreground space-y-1">
               <p>
-                • <strong>Setup Required:</strong> Replace placeholder Form IDs with your actual Google Form IDs
+                • Assessment responses are stored securely in the system
               </p>
-              <p>• Client responses will be collected in Google Sheets</p>
-              <p>• Link can be used multiple times if needed</p>
-              <p>• Results can be imported back to your dashboard</p>
+              <p>• Link expires after completion for security</p>
+              <p>• Results are immediately available in your dashboard</p>
             </div>
           </div>
         </DialogContent>

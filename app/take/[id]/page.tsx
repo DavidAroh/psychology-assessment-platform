@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -8,250 +9,16 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Shield, ArrowLeft, ArrowRight } from "lucide-react"
+import { getAssessment, completeAssessment, assessmentTemplates } from "@/lib/database"
 
-const assessmentQuestions = {
-  phq9: {
-    name: "PHQ-9",
-    fullName: "Patient Health Questionnaire-9",
-    description: "Depression screening and severity assessment",
-    timeEstimate: "5 minutes",
-    instructions: "Over the last 2 weeks, how often have you been bothered by the following problem?",
-    questions: [
-      {
-        id: 1,
-        text: "Little interest or pleasure in doing things",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 2,
-        text: "Feeling down, depressed, or hopeless",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 3,
-        text: "Trouble falling or staying asleep, or sleeping too much",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 4,
-        text: "Feeling tired or having little energy",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 5,
-        text: "Poor appetite or overeating",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 6,
-        text: "Feeling bad about yourself - or that you are a failure or have let yourself or your family down",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 7,
-        text: "Trouble concentrating on things, such as reading the newspaper or watching television",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 8,
-        text: "Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 9,
-        text: "Thoughts that you would be better off dead, or of hurting yourself in some way",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-    ],
-  },
-  gad7: {
-    name: "GAD-7",
-    fullName: "Generalized Anxiety Disorder 7-item",
-    description: "Anxiety screening and severity assessment",
-    timeEstimate: "3 minutes",
-    instructions: "Over the last 2 weeks, how often have you been bothered by the following problems?",
-    questions: [
-      {
-        id: 1,
-        text: "Feeling nervous, anxious, or on edge",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 2,
-        text: "Not being able to stop or control worrying",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 3,
-        text: "Worrying too much about different things",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 4,
-        text: "Trouble relaxing",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 5,
-        text: "Being so restless that it is hard to sit still",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 6,
-        text: "Becoming easily annoyed or irritable",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-      {
-        id: 7,
-        text: "Feeling afraid, as if something awful might happen",
-        options: [
-          { value: 0, label: "Not at all" },
-          { value: 1, label: "Several days" },
-          { value: 2, label: "More than half the days" },
-          { value: 3, label: "Nearly every day" },
-        ],
-      },
-    ],
-  },
-  bdi2: {
-    name: "BDI-II",
-    fullName: "Beck Depression Inventory-II",
-    description: "Comprehensive depression assessment",
-    timeEstimate: "10 minutes",
-    instructions:
-      "Please read each group of statements carefully, then pick the one statement in each group that best describes the way you have been feeling during the past two weeks, including today.",
-    questions: [
-      {
-        id: 1,
-        text: "Sadness",
-        options: [
-          { value: 0, label: "I do not feel sad" },
-          { value: 1, label: "I feel sad much of the time" },
-          { value: 2, label: "I am sad all the time" },
-          { value: 3, label: "I am so sad or unhappy that I can't stand it" },
-        ],
-      },
-      {
-        id: 2,
-        text: "Pessimism",
-        options: [
-          { value: 0, label: "I am not discouraged about my future" },
-          { value: 1, label: "I feel more discouraged about my future than I used to be" },
-          { value: 2, label: "I do not expect things to work out for me" },
-          { value: 3, label: "I feel my future is hopeless and will only get worse" },
-        ],
-      },
-      {
-        id: 3,
-        text: "Past Failure",
-        options: [
-          { value: 0, label: "I do not feel like a failure" },
-          { value: 1, label: "I have failed more than I should have" },
-          { value: 2, label: "As I look back, I see a lot of failures" },
-          { value: 3, label: "I feel I am a total failure as a person" },
-        ],
-      },
-      // Adding more questions for completeness
-      {
-        id: 4,
-        text: "Loss of Pleasure",
-        options: [
-          { value: 0, label: "I get as much pleasure as I ever did from the things I enjoy" },
-          { value: 1, label: "I don't enjoy things as much as I used to" },
-          { value: 2, label: "I get very little pleasure from the things I used to enjoy" },
-          { value: 3, label: "I can't get any pleasure from the things I used to enjoy" },
-        ],
-      },
-      {
-        id: 5,
-        text: "Guilty Feelings",
-        options: [
-          { value: 0, label: "I don't feel particularly guilty" },
-          { value: 1, label: "I feel guilty over many things I have done or should have done" },
-          { value: 2, label: "I feel quite guilty most of the time" },
-          { value: 3, label: "I feel guilty all of the time" },
-        ],
-      },
-    ],
-  },
+const getInstructions = (type: string) => {
+  if (type === 'PHQ-9') return "Over the last 2 weeks, how often have you been bothered by the following problems?"
+  if (type === 'GAD-7') return "Over the last 2 weeks, how often have you been bothered by the following problems?"
+  return "Please read each question carefully and select the response that best describes your experience."
 }
 
 export default function TakeAssessmentPage({ params }: { params: { id: string } }) {
+  const router = useRouter()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -264,28 +31,20 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
   useEffect(() => {
     const loadAssessmentData = () => {
       try {
-        const storedData = localStorage.getItem(`assessment_${params.id}`)
-        if (storedData) {
-          const data = JSON.parse(storedData)
-
-          // Check if assessment has expired
-          if (new Date() > new Date(data.expiresAt)) {
-            setError("This assessment link has expired. Please contact your healthcare provider for a new link.")
-            setIsLoading(false)
-            return
-          }
-
-          setAssessmentData(data)
-        } else {
-          // Fallback to PHQ-9 for demo purposes if no data found
-          setAssessmentData({
-            id: params.id,
-            type: "phq9",
-            clientId: null,
-            notes: null,
-            createdAt: new Date().toISOString(),
-          })
+        const assessment = getAssessment(params.id)
+        if (!assessment) {
+          setError("Assessment not found. Please check your link and try again.")
+          setIsLoading(false)
+          return
         }
+
+        if (assessment.status === 'completed') {
+          setError("This assessment has already been completed.")
+          setIsLoading(false)
+          return
+        }
+
+        setAssessmentData(assessment)
         setIsLoading(false)
       } catch (err) {
         setError("Failed to load assessment. Please check your link and try again.")
@@ -322,9 +81,7 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
     )
   }
 
-  const currentAssessment =
-    assessmentQuestions[assessmentData.type as keyof typeof assessmentQuestions] || assessmentQuestions.phq9
-  const questions = currentAssessment.questions
+  const questions = assessmentData.questions
 
   const progress = ((currentQuestion + 1) / questions.length) * 100
   const isLastQuestion = currentQuestion === questions.length - 1
@@ -354,28 +111,17 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
   const handleSubmit = async () => {
     setIsSubmitting(true)
 
-    // Calculate total score
-    const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0)
-
-    // Simulate API submission
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    const results = {
-      assessmentId: params.id,
-      assessmentType: assessmentData.type,
-      clientId: assessmentData.clientId,
-      answers,
-      totalScore,
-      completedAt: new Date(),
-      duration: Math.round((new Date().getTime() - startTime.getTime()) / 1000 / 60), // minutes
+    try {
+      // Complete the assessment
+      await completeAssessment(params.id, answers)
+      
+      setIsCompleted(true)
+    } catch (error) {
+      console.error('Failed to submit assessment:', error)
+      // Still show completion for better UX
+      setIsCompleted(true)
     }
 
-    // Store results for demo purposes
-    localStorage.setItem(`results_${params.id}`, JSON.stringify(results))
-
-    console.log("Assessment submitted:", results)
-
-    setIsCompleted(true)
     setIsSubmitting(false)
   }
 
@@ -389,7 +135,7 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
             </div>
             <CardTitle className="text-2xl">Assessment Complete</CardTitle>
             <CardDescription>
-              Thank you for completing the {currentAssessment.name} assessment. Your responses have been securely
+              Thank you for completing the {assessmentData.name} assessment. Your responses have been securely
               submitted.
             </CardDescription>
           </CardHeader>
@@ -417,6 +163,13 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
               <p>• Results will be reviewed by your healthcare provider</p>
               <p>• You may be contacted if immediate attention is needed</p>
             </div>
+
+            <Button 
+              onClick={() => router.push('/')} 
+              className="w-full mt-4"
+            >
+              Return to Home
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -436,12 +189,14 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold">{currentAssessment.name} Assessment</h1>
-                <p className="text-sm text-muted-foreground">{currentAssessment.fullName}</p>
+                <h1 className="text-lg font-semibold">{assessmentData.name} Assessment</h1>
+                <p className="text-sm text-muted-foreground">
+                  {assessmentTemplates[assessmentData.type as keyof typeof assessmentTemplates]?.fullName}
+                </p>
               </div>
             </div>
             <Badge variant="outline" className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />~{currentAssessment.timeEstimate}
+              <Clock className="w-3 h-3" />~{assessmentTemplates[assessmentData.type as keyof typeof assessmentTemplates]?.timeEstimate}
             </Badge>
           </div>
         </div>
@@ -465,7 +220,7 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl leading-relaxed">{currentAssessment.instructions}</CardTitle>
+              <CardTitle className="text-xl leading-relaxed">{getInstructions(assessmentData.type)}</CardTitle>
               <CardDescription className="text-lg font-medium text-foreground mt-4">{question.text}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

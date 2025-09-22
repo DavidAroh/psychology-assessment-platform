@@ -14,92 +14,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Search, Download, FileText, AlertTriangle, Calendar, MoreHorizontal, Eye, Trash2 } from "lucide-react"
 import * as XLSX from "xlsx"
+import { getAllAssessments } from "@/lib/database"
 
-// Sample client data
-const clientData = [
-  {
-    id: "C-2024-089",
-    date: "2024-01-15",
-    assessment: "PHQ-9",
-    rawScore: 23,
-    severity: "Severe Depression",
-    flags: ["Suicidal Ideation"],
-    completedAt: "2024-01-15 14:30",
-    status: "completed",
-  },
-  {
-    id: "C-2024-088",
-    date: "2024-01-15",
-    assessment: "GAD-7",
-    rawScore: 18,
-    severity: "Severe Anxiety",
-    flags: ["Panic Attacks"],
-    completedAt: "2024-01-15 12:15",
-    status: "completed",
-  },
-  {
-    id: "C-2024-087",
-    date: "2024-01-14",
-    assessment: "BDI-II",
-    rawScore: 19,
-    severity: "Moderate Depression",
-    flags: [],
-    completedAt: "2024-01-14 16:45",
-    status: "completed",
-  },
-  {
-    id: "C-2024-086",
-    date: "2024-01-14",
-    assessment: "PHQ-9",
-    rawScore: 8,
-    severity: "Mild Depression",
-    flags: [],
-    completedAt: "2024-01-14 10:20",
-    status: "completed",
-  },
-  {
-    id: "C-2024-085",
-    date: "2024-01-13",
-    assessment: "GAD-7",
-    rawScore: 12,
-    severity: "Moderate Anxiety",
-    flags: [],
-    completedAt: "2024-01-13 15:30",
-    status: "completed",
-  },
-  {
-    id: "C-2024-084",
-    date: "2024-01-13",
-    assessment: "DASS-21",
-    rawScore: 35,
-    severity: "Severe Combined",
-    flags: ["High Stress"],
-    completedAt: "2024-01-13 11:45",
-    status: "completed",
-  },
-  {
-    id: "C-2024-083",
-    date: "2024-01-12",
-    assessment: "PHQ-9",
-    rawScore: 15,
-    severity: "Moderately Severe Depression",
-    flags: [],
-    completedAt: "2024-01-12 14:15",
-    status: "completed",
-  },
-  {
-    id: "C-2024-082",
-    date: "2024-01-12",
-    assessment: "BAI",
-    rawScore: 22,
-    severity: "Moderate Anxiety",
-    flags: [],
-    completedAt: "2024-01-12 09:30",
-    status: "completed",
-  },
-]
-
-const assessmentTypes = ["All Assessments", "PHQ-9", "GAD-7", "BDI-II", "BAI", "DASS-21", "PCL-5"]
+const assessmentTypes = ["All Assessments", "PHQ-9", "GAD-7"]
 
 export default function ClientsPage() {
   const router = useRouter()
@@ -108,6 +25,21 @@ export default function ClientsPage() {
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [sortField, setSortField] = useState<string>("date")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+
+  // Get all completed assessments
+  const allAssessments = getAllAssessments().filter(a => a.status === 'completed' || a.status === 'flagged')
+  
+  // Transform to match the expected format
+  const clientData = allAssessments.map(assessment => ({
+    id: assessment.clientId || assessment.id,
+    date: assessment.completedAt?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+    assessment: assessment.name,
+    rawScore: assessment.score || 0,
+    severity: assessment.severity || 'Unknown',
+    flags: assessment.riskFlags || [],
+    completedAt: assessment.completedAt?.toLocaleString() || 'Unknown',
+    status: assessment.status,
+  }))
 
   // Filter data based on selected assessment and search term
   const filteredData = clientData.filter((item) => {

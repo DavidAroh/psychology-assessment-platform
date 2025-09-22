@@ -6,8 +6,12 @@ import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { RiskAlerts } from "@/components/risk-alerts"
+import { getAssessmentStats, getRecentAssessments } from "@/lib/database"
 
 export default function HomePage() {
+  const stats = getAssessmentStats()
+  const recentAssessments = getRecentAssessments(3)
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -25,7 +29,7 @@ export default function HomePage() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">247</div>
+                  <div className="text-2xl font-bold text-primary">{stats.totalAssessments}</div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <TrendingUp className="w-3 h-3 text-primary" />
                     +12% from last month
@@ -41,7 +45,7 @@ export default function HomePage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">89</div>
+                  <div className="text-2xl font-bold text-primary">{stats.activeClients}</div>
                   <p className="text-xs text-muted-foreground">+5 new this week</p>
                 </CardContent>
               </Card>
@@ -54,7 +58,7 @@ export default function HomePage() {
                   <AlertTriangle className="h-4 w-4 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-destructive">3</div>
+                  <div className="text-2xl font-bold text-destructive">{stats.riskFlags}</div>
                   <p className="text-xs text-muted-foreground">Require immediate attention</p>
                 </CardContent>
               </Card>
@@ -67,7 +71,7 @@ export default function HomePage() {
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">94%</div>
+                  <div className="text-2xl font-bold text-primary">{stats.completionRate}%</div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <TrendingUp className="w-3 h-3 text-primary" />
                     +2% from last month
@@ -94,38 +98,34 @@ export default function HomePage() {
                 <CardDescription>Latest assessment submissions</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium">PHQ-9 Assessment</p>
-                    <p className="text-sm text-muted-foreground">Client C-2024-092</p>
+                {recentAssessments.length > 0 ? (
+                  recentAssessments.map((assessment) => (
+                    <div key={assessment.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium">{assessment.name} Assessment</p>
+                        <p className="text-sm text-muted-foreground">
+                          {assessment.clientId ? `Client ${assessment.clientId}` : 'Anonymous'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={assessment.status === 'flagged' ? 'destructive' : 'secondary'}>
+                          {assessment.severity?.split(' ')[0] || 'Completed'}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {assessment.completedAt ? 
+                            new Date(assessment.completedAt).toLocaleDateString() : 
+                            'Recently'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No recent assessments</p>
+                    <p className="text-xs mt-1">Create your first assessment to get started</p>
                   </div>
-                  <div className="text-right">
-                    <Badge variant="secondary">Moderate</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">1 hour ago</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium">GAD-7 Assessment</p>
-                    <p className="text-sm text-muted-foreground">Client C-2024-090</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant="outline">Minimal</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">3 hours ago</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium">BDI-II Assessment</p>
-                    <p className="text-sm text-muted-foreground">Client C-2024-087</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant="secondary">Moderate</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">5 hours ago</p>
-                  </div>
-                </div>
+                )}
 
                 <div className="pt-4 border-t">
                   <Link href="/clients">

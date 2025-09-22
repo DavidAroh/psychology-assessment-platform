@@ -14,96 +14,19 @@ import { FileText, Plus, Copy, ExternalLink, Clock, Users, Search } from "lucide
 import { AssessmentCreator } from "@/components/assessment-creator"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
+import { getAllAssessments, assessmentTemplates } from "@/lib/database"
 
-const standardAssessments = [
-  {
-    id: "phq9",
-    name: "PHQ-9",
-    fullName: "Patient Health Questionnaire-9",
-    description: "Depression screening and severity assessment",
-    questions: 9,
-    timeEstimate: "5 minutes",
-    category: "Depression",
-    usageCount: 45,
-  },
-  {
-    id: "gad7",
-    name: "GAD-7",
-    fullName: "Generalized Anxiety Disorder 7-item",
-    description: "Anxiety screening and severity assessment",
-    questions: 7,
-    timeEstimate: "3 minutes",
-    category: "Anxiety",
-    usageCount: 38,
-  },
-  {
-    id: "bdi2",
-    name: "BDI-II",
-    fullName: "Beck Depression Inventory-II",
-    description: "Comprehensive depression assessment",
-    questions: 21,
-    timeEstimate: "10 minutes",
-    category: "Depression",
-    usageCount: 32,
-  },
-  {
-    id: "bai",
-    name: "BAI",
-    fullName: "Beck Anxiety Inventory",
-    description: "Physical symptoms of anxiety assessment",
-    questions: 21,
-    timeEstimate: "8 minutes",
-    category: "Anxiety",
-    usageCount: 28,
-  },
-  {
-    id: "dass21",
-    name: "DASS-21",
-    fullName: "Depression, Anxiety and Stress Scale-21",
-    description: "Combined assessment of depression, anxiety, and stress",
-    questions: 21,
-    timeEstimate: "8 minutes",
-    category: "Combined",
-    usageCount: 24,
-  },
-  {
-    id: "pcl5",
-    name: "PCL-5",
-    fullName: "PTSD Checklist for DSM-5",
-    description: "Post-traumatic stress disorder screening",
-    questions: 20,
-    timeEstimate: "10 minutes",
-    category: "Trauma",
-    usageCount: 15,
-  },
-]
-
-const recentAssessments = [
-  {
-    id: "A-2024-089",
-    type: "PHQ-9",
-    clientId: "C-2024-089",
-    status: "completed",
-    createdAt: "2 hours ago",
-    completedAt: "1 hour ago",
-  },
-  {
-    id: "A-2024-088",
-    type: "GAD-7",
-    clientId: "C-2024-087",
-    status: "pending",
-    createdAt: "4 hours ago",
-    completedAt: null,
-  },
-  {
-    id: "A-2024-087",
-    type: "BDI-II",
-    clientId: "C-2024-085",
-    status: "completed",
-    createdAt: "6 hours ago",
-    completedAt: "5 hours ago",
-  },
-]
+// Convert assessment templates to the expected format
+const standardAssessments = Object.entries(assessmentTemplates).map(([key, template]) => ({
+  id: key.toLowerCase(),
+  name: template.name,
+  fullName: template.fullName,
+  description: template.description,
+  questions: template.questions.length,
+  timeEstimate: template.timeEstimate,
+  category: template.category,
+  usageCount: getAllAssessments().filter(a => a.type === key).length,
+}))
 
 export default function AssessmentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -112,6 +35,18 @@ export default function AssessmentsPage() {
   const [showCreator, setShowCreator] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [previewAssessment, setPreviewAssessment] = useState<any>(null)
+
+  // Get recent assessments from database
+  const recentAssessments = getAllAssessments()
+    .slice(0, 10)
+    .map(assessment => ({
+      id: assessment.id,
+      type: assessment.name,
+      clientId: assessment.clientId || 'Anonymous',
+      status: assessment.status,
+      createdAt: new Date(assessment.createdAt).toLocaleDateString(),
+      completedAt: assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString() : null,
+    }))
 
   const filteredAssessments = standardAssessments.filter((assessment) => {
     const matchesSearch =

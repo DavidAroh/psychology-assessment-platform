@@ -6,40 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, Clock, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-
-const riskAlerts = [
-  {
-    id: "C-2024-089",
-    assessment: "PHQ-9",
-    score: 23,
-    severity: "Severe Depression",
-    riskFactors: ["Suicidal ideation", "Sleep disturbance"],
-    timeAgo: "2 hours ago",
-    priority: "high",
-  },
-  {
-    id: "C-2024-091",
-    assessment: "GAD-7",
-    score: 18,
-    severity: "Severe Anxiety",
-    riskFactors: ["Panic attacks", "Avoidance behavior"],
-    timeAgo: "4 hours ago",
-    priority: "high",
-  },
-  {
-    id: "C-2024-088",
-    assessment: "BDI-II",
-    score: 19,
-    severity: "Moderate Depression",
-    riskFactors: ["Hopelessness"],
-    timeAgo: "6 hours ago",
-    priority: "medium",
-  },
-]
+import { getHighRiskClients } from "@/lib/database"
 
 export function RiskAlerts() {
   const router = useRouter()
   const [contactingClient, setContactingClient] = useState<string | null>(null)
+  const riskClients = getHighRiskClients()
 
   const handleViewDetails = (clientId: string) => {
     router.push(`/clients/${clientId}`)
@@ -63,8 +35,89 @@ export function RiskAlerts() {
         <CardDescription>Clients requiring immediate clinical attention</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {riskAlerts.map((alert) => (
-          <div key={alert.id} className="p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
+        {riskClients.length > 0 ? (
+          riskClients.map((client) => {
+            const latestAssessment = client.assessments
+              .filter(a => a.status === 'flagged')
+              .sort((a, b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0))[0]
+            
+            if (!latestAssessment) return null
+            
+            return (
+              <div key={client.id} className="p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-destructive" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{client.name}</p>
+                      <p className="text-sm text-muted-foreground">{latestAssessment.name} Assessment</p>
+                    </div>
+                  </div>
+                  <Badge variant="destructive" className="text-xs">
+                    HIGH RISK
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Score:</span>
+                    <span className="ml-2 font-medium text-destructive">{latestAssessment.score}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Severity:</span>
+                    <span className="ml-2 font-medium">{latestAssessment.severity}</span>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <p className="text-sm text-muted-foreground mb-1">Risk Factors:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {latestAssessment.riskFlags?.map((factor, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {factor}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    {latestAssessment.completedAt ? 
+                      new Date(latestAssessment.completedAt).toLocaleDateString() : 
+                      'Recently'
+                    }
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleViewDetails(client.id)}>
+                      View Details
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleContactClient(client.id)}
+                      disabled={contactingClient === client.id}
+                    >
+                      {contactingClient === client.id ? "Contacting..." : "Contact Client"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p className="font-medium">No high-risk alerts</p>
+            <p className="text-sm">All clients are within normal risk levels</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center">
