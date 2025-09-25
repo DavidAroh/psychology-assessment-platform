@@ -30,15 +30,15 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
     setIsCreating(true)
 
     try {
-      // Create assessment in database
-      const assessment = createAssessment({
+      // Create assessment with proper token
+      const assessment = await createAssessment({
         type: assessmentType,
         clientId: clientId || undefined,
         notes: notes || undefined,
       })
 
       // Create assessment link
-      const link = `${window.location.origin}/take/${assessment.id}`
+      const link = `${window.location.origin}/take/${assessment.shareToken}`
       setAssessmentLink(link)
       setShowLinkDialog(true)
 
@@ -47,10 +47,10 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
         description: `${assessmentType} assessment has been created successfully.`,
       })
     } catch (error) {
+      console.error('Error creating assessment:', error)
       toast({
         title: "Error",
         description: "Failed to create assessment. Please try again.",
-        variant: "destructive",
       })
     }
 
@@ -132,6 +132,11 @@ export function AssessmentCreator({ assessmentType, assessmentName }: Assessment
               <Button variant="outline" className="flex-1 bg-transparent" onClick={() => router.push(`/take/${assessmentLink.split('/').pop()}`)}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Preview Assessment
+              </Button>
+
+              <Button variant="outline" onClick={() => openInNewTab(assessmentLink)}>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open Link
               </Button>
 
               <Button variant="outline">

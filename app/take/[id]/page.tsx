@@ -29,9 +29,14 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadAssessmentData = () => {
+    const loadAssessmentData = async () => {
       try {
-        const assessment = getAssessment(params.id)
+        // Try to get assessment by share token first, then by ID
+        let assessment = await getAssessmentByToken(params.id)
+        if (!assessment) {
+          assessment = await getAssessment(params.id)
+        }
+        
         if (!assessment) {
           setError("Assessment not found. Please check your link and try again.")
           setIsLoading(false)
@@ -47,6 +52,7 @@ export default function TakeAssessmentPage({ params }: { params: { id: string } 
         setAssessmentData(assessment)
         setIsLoading(false)
       } catch (err) {
+        console.error('Error loading assessment:', err)
         setError("Failed to load assessment. Please check your link and try again.")
         setIsLoading(false)
       }

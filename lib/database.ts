@@ -3,6 +3,7 @@
 
 export interface Assessment {
   id: string
+  shareToken: string
   type: string
   name: string
   clientId?: string
@@ -234,14 +235,18 @@ export function createAssessment(data: {
   type: string
   clientId?: string
   notes?: string
-}): Assessment {
+}): Promise<Assessment> {
   const template = assessmentTemplates[data.type as keyof typeof assessmentTemplates]
   if (!template) {
     throw new Error(`Assessment type ${data.type} not found`)
   }
 
+  // Generate a unique share token
+  const shareToken = `ast_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+
   const assessment: Assessment = {
     id: `A-${Date.now()}-${assessmentCounter++}`,
+    shareToken,
     type: data.type,
     name: template.name,
     clientId: data.clientId,
@@ -252,7 +257,12 @@ export function createAssessment(data: {
   }
 
   assessments.push(assessment)
-  return assessment
+  return Promise.resolve(assessment)
+}
+
+export function getAssessmentByToken(token: string): Promise<Assessment | null> {
+  const assessment = assessments.find(a => a.shareToken === token)
+  return Promise.resolve(assessment || null)
 }
 
 export function getAssessment(id: string): Assessment | null {
@@ -263,8 +273,12 @@ export function getAllAssessments(): Assessment[] {
   return [...assessments].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 }
 
-export function completeAssessment(id: string, responses: Record<number, number>): Assessment {
-  const assessment = assessments.find(a => a.id === id)
+export function completeAssessment(idOrToken: string, responses: Record<number, number>): Promise<Assessment> {
+  let assessment = assessments.find(a => a.id === idOrToken)
+  if (!assessment) {
+    assessment = assessments.find(a => a.shareToken === idOrToken)
+  }
+  
   if (!assessment) {
     throw new Error('Assessment not found')
   }
@@ -349,7 +363,7 @@ export function completeAssessment(id: string, responses: Record<number, number>
     client.lastContact = new Date()
   }
 
-  return assessment
+  return Promise.resolve(assessment)
 }
 
 export function getAllClients(): Client[] {
