@@ -1,0 +1,48 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Assessment {
+  id          String   @id @default(cuid())
+  type        String
+  name        String
+  clientId    String?
+  status      String   @default("pending")
+  notes       String?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+  score       Int?
+  severity    String?
+  riskFlags   Json?
+  responses   Json?
+
+  client      Client?  @relation(fields: [clientId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clients   Client[]
+}
+
+model Client {
+  id          String       @id @default(cuid())
+  name        String
+  email       String
+  riskLevel   String       @default("low")
+  lastContact DateTime?
+  assessments Assessment[]
+
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+}
