@@ -63,18 +63,18 @@ export default function HomePage() {
         <DashboardHeader />
 
         {/* Main Content */}
-        <main className="px-4 lg:px-8 py-8">
+        <main className="px-4 lg:px-8 py-6 lg:py-8">
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
             <Link href="/assessments" className="block">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Assessments</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm sm:text-base font-medium">Total Assessments</CardTitle>
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">{stats.totalAssessments}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">{stats.totalAssessments}</div>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {stats.totalAssessments === 0 ? 'No assessments yet' : 'Completed assessments'}
                   </p>
                 </CardContent>
@@ -82,14 +82,14 @@ export default function HomePage() {
             </Link>
 
             <Link href="/clients" className="block">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm sm:text-base font-medium">Active Clients</CardTitle>
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">{stats.activeClients}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">{stats.activeClients}</div>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {stats.activeClients === 0 ? 'No clients yet' : 'Active clients'}
                   </p>
                 </CardContent>
@@ -97,14 +97,14 @@ export default function HomePage() {
             </Link>
 
             <Link href="/clients?filter=risk" className="block">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Risk Flags</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-destructive" />
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm sm:text-base font-medium">Risk Flags</CardTitle>
+                  <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-destructive">{stats.riskFlags}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl sm:text-3xl font-bold text-destructive">{stats.riskFlags}</div>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {stats.riskFlags === 0 ? 'No risk flags' : 'Require immediate attention'}
                   </p>
                 </CardContent>
@@ -112,14 +112,14 @@ export default function HomePage() {
             </Link>
 
             <Link href="/reports" className="block">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm sm:text-base font-medium">Completion Rate</CardTitle>
+                  <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">{stats.completionRate}%</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">{stats.completionRate}%</div>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {stats.totalAssessments === 0 ? 'No assessments' : 'Completion rate'}
                   </p>
                 </CardContent>
@@ -128,14 +128,14 @@ export default function HomePage() {
           </div>
 
           {/* Main Dashboard Content */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             {/* Risk Alerts - Takes up 2 columns */}
-            <div className="xl:col-span-2">
+            <div className="xl:col-span-2 order-2 xl:order-1">
               <RiskAlerts highRiskClients={highRiskClients} flaggedAssessments={flaggedAssessments} />
             </div>
 
             {/* Recent Activity */}
-            <Card>
+            <Card className="order-1 xl:order-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-primary" />

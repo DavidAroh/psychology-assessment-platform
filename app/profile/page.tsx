@@ -123,12 +123,12 @@ export default function ProfilePage() {
               </Card>
 
               {/* Certifications */}
-              <Card className="mt-6">
-                <CardHeader>
+              <Card className="mt-4 h-37">
+                <CardHeader className="p-0 pl-4">
                   <CardTitle className="text-lg">Certifications</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
+                <CardContent className="p-0 pl-4 ">
+                  <div className="flex flex-wrap gap-1">
                     {profile.certifications.map((cert, index) => (
                       <Badge key={index} variant="secondary">
                         {cert}
@@ -250,7 +250,7 @@ export default function ProfilePage() {
               </Card>
 
               {/* Statistics */}
-              <Card>
+              <Card className="mt-4 w-[154%] relative right-78">
                 <CardHeader>
                   <CardTitle>Professional Statistics</CardTitle>
                   <CardDescription>

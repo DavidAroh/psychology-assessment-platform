@@ -125,24 +125,24 @@ export default function AssessmentsPage() {
                   <CardDescription>Select from validated psychological assessment tools</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-4 mb-6">
-                    <div className="flex-1">
+                  <div className="flex mb-6 w-[105%] gap-3">
+                    <div className="flex-5">
                       <Label htmlFor="search">Search Assessments</Label>
-                      <div className="relative">
+                      <div className="relative mt-2">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="search"
                           placeholder="Search by name or description..."
-                          className="pl-10"
+                          className="pl-10 bg-white w-4xl"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
                       </div>
                     </div>
-                    <div className="w-48">
+                    <div className="w-48 relative">
                       <Label htmlFor="category">Category</Label>
                       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white mt-2">
                           <SelectValue placeholder="All Categories" />
                         </SelectTrigger>
                         <SelectContent>

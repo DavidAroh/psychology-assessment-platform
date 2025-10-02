@@ -79,27 +79,43 @@ export function Navigation() {
 
       {/* Mobile Header */}
       <div className="lg:hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border bg-card shadow-sm">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-                <Activity className="w-4 h-4 text-primary-foreground" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Activity className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-semibold">PsychAssess</span>
+              <div className="hidden sm:block">
+                <span className="font-semibold text-lg">PsychAssess</span>
+                <p className="text-xs text-muted-foreground">Professional</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <NotificationsDropdown />
+            <Button 
+              size="sm" 
+              onClick={() => router.push("/assessments")}
+              className="hidden sm:flex"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              New
+            </Button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="border-b border-border bg-card">
-            <nav className="px-4 py-2 space-y-1">
+          <div className="border-b border-border bg-card shadow-lg">
+            <nav className="px-4 py-4 space-y-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -107,18 +123,37 @@ export function Navigation() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      "flex items-center gap-4 px-4 py-3 text-base font-medium rounded-xl transition-all duration-200",
                       isActive
-                        ? "bg-accent text-accent-foreground"
-                        : "text-foreground hover:bg-accent hover:text-accent-foreground",
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-foreground hover:bg-accent hover:text-accent-foreground active:scale-95",
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <item.icon className="w-5 h-5" />
-                    {item.name}
+                    <item.icon className="w-6 h-6" />
+                    <span>{item.name}</span>
+                    {item.name === "Dashboard" && highRiskClients && highRiskClients.length > 0 && (
+                      <Badge variant="destructive" className="ml-auto text-xs">
+                        {highRiskClients.length}
+                      </Badge>
+                    )}
                   </Link>
                 )
               })}
+              
+              {/* Mobile Quick Actions */}
+              <div className="pt-4 mt-4 border-t border-border">
+                <Button 
+                  className="w-full justify-start text-base py-3 h-auto" 
+                  onClick={() => {
+                    router.push("/assessments")
+                    setIsMobileMenuOpen(false)
+                  }}
+                >
+                  <Plus className="w-5 h-5 mr-3" />
+                  Create New Assessment
+                </Button>
+              </div>
             </nav>
           </div>
         )}
