@@ -54,16 +54,16 @@ export default function LoginPage() {
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-blue-600 p-3 rounded-full">
-              <Stethoscope className="h-8 w-8 text-white" />
+              <Stethoscope className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
           </div>
-          <div className="flex items-center justify-center space-x-4">
-            <CardTitle className="text-2xl font-bold border-b-2 border-primary pb-1">Sign In</CardTitle>
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
+            <CardTitle className="text-xl sm:text-2xl font-bold border-b-2 border-primary pb-1">Sign In</CardTitle>
             <Link href="/register">
-              <CardTitle className="text-2xl font-bold text-muted-foreground hover:text-primary transition-colors pb-1">Sign Up</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-muted-foreground hover:text-primary transition-colors pb-1">Sign Up</CardTitle>
             </Link>
           </div>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription className="text-sm">Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

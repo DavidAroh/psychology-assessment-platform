@@ -94,14 +94,15 @@ export default function AssessmentsPage() {
         {/* Header */}
         <header className="border-b border-border bg-card">
           <div className="px-4 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Assessment Management</h1>
-                <p className="text-muted-foreground">Create and manage psychological assessments</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Assessment Management</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">Create and manage psychological assessments</p>
               </div>
-              <Button onClick={() => setShowCreator(true)}>
+              <Button onClick={() => setShowCreator(true)} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                Create Custom Assessment
+                <span className="hidden sm:inline">Create Custom Assessment</span>
+                <span className="sm:hidden">Create Custom</span>
               </Button>
             </div>
           </div>
@@ -125,21 +126,21 @@ export default function AssessmentsPage() {
                   <CardDescription>Select from validated psychological assessment tools</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex mb-6 w-[105%] gap-3">
-                    <div className="flex-5">
+                  <div className="flex flex-col sm:flex-row mb-6 gap-4">
+                    <div className="flex-1">
                       <Label htmlFor="search">Search Assessments</Label>
                       <div className="relative mt-2">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="search"
                           placeholder="Search by name or description..."
-                          className="pl-10 bg-white w-4xl"
+                          className="pl-10 bg-white"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
                       </div>
                     </div>
-                    <div className="w-48 relative">
+                    <div className="w-full sm:w-48">
                       <Label htmlFor="category">Category</Label>
                       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                         <SelectTrigger className="bg-white mt-2">
@@ -298,33 +299,33 @@ export default function AssessmentsPage() {
                     {recentAssessments.map((assessment) => (
                       <div
                         key={assessment.id}
-                        className="flex items-center justify-between p-4 border border-border rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border border-border rounded-lg"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                             <FileText className="w-5 h-5 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-medium">{assessment.type} Assessment</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium truncate">{assessment.type} Assessment</p>
                             <p className="text-sm text-muted-foreground">
                               Client: {assessment.clientId} • Created {assessment.createdAt}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 sm:flex-shrink-0">
                           <Badge variant={assessment.status === "completed" ? "default" : "secondary"}>
                             {assessment.status}
                           </Badge>
 
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm" onClick={() => handleCopyLink(assessment.id)}>
-                              <Copy className="w-4 h-4 mr-2" />
-                              Copy Link
+                              <Copy className="w-4 h-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Copy Link</span>
                             </Button>
                             <Button variant="outline" size="sm">
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              View
+                              <ExternalLink className="w-4 h-4 sm:mr-2" />
+                              <span className="hidden sm:inline">View</span>
                             </Button>
                           </div>
                         </div>

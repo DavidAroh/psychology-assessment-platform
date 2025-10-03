@@ -227,19 +227,21 @@ export default function ClientsPage() {
         {/* Header */}
         <header className="border-b border-border bg-card">
           <div className="px-4 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Client Data Sheet</h1>
-                <p className="text-muted-foreground">View and manage all assessment results</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Client Data Sheet</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">View and manage all assessment results</p>
               </div>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={() => exportData("csv")}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export CSV
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button variant="outline" size="sm" onClick={() => exportData("csv")} className="flex-1 sm:flex-none">
+                  <Download className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                  <span className="sm:hidden">CSV</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => exportData("excel")}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Excel
+                <Button variant="outline" size="sm" onClick={() => exportData("excel")} className="flex-1 sm:flex-none">
+                  <Download className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Export Excel</span>
+                  <span className="sm:hidden">Excel</span>
                 </Button>
               </div>
             </div>
@@ -296,7 +298,7 @@ export default function ClientsPage() {
               </div>
 
               {/* Data Table */}
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">

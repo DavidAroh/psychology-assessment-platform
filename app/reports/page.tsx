@@ -365,12 +365,12 @@ This report contains detailed assessment results and clinical recommendations.
         {/* Header */}
         <header className="border-b border-border bg-card">
           <div className="px-4 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Report Generation</h1>
-                <p className="text-muted-foreground">Create professional assessment reports</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Report Generation</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">Create professional assessment reports</p>
               </div>
-              <Button variant="outline" onClick={() => setShowSettings(true)}>
+              <Button variant="outline" onClick={() => setShowSettings(true)} className="w-full sm:w-auto">
                 <Settings className="w-4 h-4 mr-2" />
                 Report Settings
               </Button>
@@ -603,34 +603,34 @@ This report contains detailed assessment results and clinical recommendations.
                     {sampleReports.map((report) => (
                       <div
                         key={report.id}
-                        className="flex items-center justify-between p-4 border border-border rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border border-border rounded-lg"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                             <FileText className="w-5 h-5 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-medium">{report.assessment} Report</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium truncate">{report.assessment} Report</p>
+                            <p className="text-sm text-muted-foreground truncate">
                               Client: {report.clientId} • Score: {report.score} • {report.severity}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          <div className="text-right text-sm">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:flex-shrink-0">
+                          <div className="text-left sm:text-right text-sm w-full sm:w-auto">
                             <p className="font-medium">{report.id}</p>
                             <p className="text-muted-foreground">{new Date(report.generatedAt).toLocaleString()}</p>
                           </div>
 
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleViewReport(report.id)}>
-                              <Eye className="w-4 h-4 mr-2" />
-                              View
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            <Button variant="outline" size="sm" onClick={() => handleViewReport(report.id)} className="flex-1 sm:flex-none">
+                              <Eye className="w-4 h-4 sm:mr-2" />
+                              <span className="hidden sm:inline">View</span>
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleDownloadReport(report.id)}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download
+                            <Button variant="outline" size="sm" onClick={() => handleDownloadReport(report.id)} className="flex-1 sm:flex-none">
+                              <Download className="w-4 h-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Download</span>
                             </Button>
                           </div>
                         </div>
